@@ -44,7 +44,11 @@ app.get('/logout', function (req, res) {
     return res.render('index', {redirect: "/", title: 'Log In', redirect: '', note: '' });
 });
 
-app.get('/operatorsView', operatorView.operatorsView);
+//app.get('/operatorsView', operatorView.operatorsView);
+app.get('/operatorsView', function (req, res) {
+  res.render('operatorsView', {title: 'Operators', access_level: req.cookies.level});
+});
+
 app.get('/usersView', users.usersView);
 
 app.post('/checklogin', function (req, res) {

@@ -1,10 +1,12 @@
 <% include header.html %>
 
-<h1><%= title %></h1>
-<!-- <p>Welcome to <%= title %></p> -->
-<button id="AddUser">Add User</button>
-<button  id="logout">LogOut</button>
-<div id="grid"></div>
+<h1><%= title %></h1><br><br>
+<div id="wrapper1">
+  <button class="userBtns" id="AddUser">Add User</button>
+  <button class="userBtns" id="operators">Operator Maint</button>
+  <button  class="userBtns" id="logout">LogOut</button>
+  <div id="grid"></div>
+</div>  
 
 
 <script type="text/javascript">
@@ -29,6 +31,33 @@ $(document).ready(function() {
     $('#access').attr('autofocus', false);
 
   });
+
+  $( "#logout" ).click(function() {
+    $.ajax({
+      type: "GET",
+      url:  '/logout',
+        success: function (result) {
+          window.location = "/";
+        },
+        error: function (request, err){
+          alert(err);
+        }
+    });  
+  });
+
+  $( "#operators" ).click(function() {
+    $.ajax({
+      type: "GET",
+      url:  '/operatorsView',
+        success: function (result) {
+          window.location = "/operatorsView";
+        },
+        error: function (request, err){
+          alert(err);
+        }
+    });  
+  });
+
 
 
 $( "#dialog-form1" ).dialog({
