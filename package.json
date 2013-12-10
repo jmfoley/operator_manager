@@ -1,0 +1,17 @@
+{
+  "name": "application-name",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "3.4.4",
+    "ejs": "*",
+    "levelup": "~0.18.2",
+    "leveldown": "*",
+    "tedious": "~0.1.5",
+    "uuid-lib": "0.0.6",
+    "async": "~0.2.9"
+  }
+}

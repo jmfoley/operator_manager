@@ -1,0 +1,172 @@
+<% include header.html %>
+
+<h1><%= title %></h1><br><br>
+<!-- <p>Welcome to <%= title %></p> -->
+<div id="wrapper">
+  <button class="userBtns" id="AddOper">Add Operator</button>
+  <button class="userBtns" id="Users">User Maint</button>
+  <button class="userBtns" id="logout">LogOut</button><br><br>
+  <div id="grid"></div><br><br>
+  <label class="version">M3 Operator Manager v0.01a</label>
+
+<!--   <div id="grid1"></div> -->
+</div>  
+
+
+
+<script type="text/javascript">
+
+var data = {
+  cols: {
+    OperatorId: {
+      index: 1,
+      unique: true,
+      type: "number"
+    },
+    Desc: {
+      index: 2,
+      type: "string"
+    }
+  },
+  rows : [
+    { OperatorId: 1,
+      Desc: 'test' }
+  ]
+};
+
+
+$(document).ready(function() {
+	var level = "<%- access_level %>";
+	if( level === "READONLY") {
+		$('#AddOper').hide();
+	}
+  console.log('level = ' + level);
+
+  if(level !== "ADMIN") {
+    $('#Users').hide();
+  }
+
+  $( "#logout" ).click(function() {
+    $.ajax({
+      type: "GET",
+      url:  '/logout',
+        success: function (result) {
+          window.location = "/";
+        },
+        error: function (request, err){
+          alert(err);
+        }
+    });  
+  });
+
+  $( "#AddOper" ).click(function() {
+    $.ajax({
+        type: "GET",
+        url: '/operator_seeds',
+        cache: false,
+        success: function (result) {
+          $("#operation").val('add');
+          $("#operatorId").val(result.OperatorId);
+          $("#code").val(result.SecCode);
+          $("#desc").val('');
+          $("#address").val('');
+          $("#city").val('');
+          $("#state").val('');
+          $("#zip").val('');
+          $("#phone").val('');
+          $('#active').attr('checked', false);
+          $('#welch').attr('checked', false);
+          $( "#dialog-form1" ).dialog( "option", "title", "Add New Operator" );
+          $( "#dialog-form1" ).dialog( "open" ); 
+
+        },
+         error: function (request,error) {
+           alert(error);
+          }
+      }); 
+  });
+
+  $( "#Users" ).click(function() {
+      window.location = "/usersView";
+  });
+
+$( "#dialog-form1" ).dialog({
+  height: 410,
+  width: 800,
+  modal: true,
+  autoOpen: false,
+  show: {
+        effect: "fold",
+        duration: 1000
+      },
+      hide: {
+        effect: "explode",
+        duration: 1000
+      }
+  });
+});
+
+
+
+var waTable = $('#grid').WATable({
+	pageSize: 25, 
+  url : '/operators',
+    tableCreated: function(data1) {    //Fires when the table is created / recreated. Use it if you want to manipulate the table in any way.
+        console.log('table created'); //data.table holds the html table element.
+    },
+    rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
+      //$('#dialog-form1').prop('title', 'Edit Operator');
+      $( "#dialog-form1" ).dialog( "option", "title", "Edit Operator" );
+      $("#dialog-form1" ).dialog( "open" ); 
+      $("#operatorId").val(data.row.OperatorId);
+      $("#code").val(data.row.Code);
+      $("#desc").val(data.row.Desc);
+      $("#address").val(data.row.Address);
+      $("#city").val(data.row.City);
+      $("#state").val(data.row.State);
+      $("#zip").val(data.row.Zip);
+      $("#phone").val(data.row.Phone);
+      if(data.row.Active) {
+        $('#active').attr('checked', true);
+      } else {
+        $('#active').attr('checked', false);
+      }
+      if(data.row.Welch) {
+        $('#welch').attr('checked', true);
+      } else {
+        $('#welch').attr('checked', false);
+      }
+      $("#operation").val('update');
+
+    }
+
+}).data('WATable');
+
+</script>
+<div id="dialog-form1" title="Create new operator">
+  <form method="post" action="/operator_maint">
+  <fieldset>
+     <p><label class="field" for="operator[operatorId]">Id:</label><input class="textbox1" type="text" name="operator[operatorId]" id="operatorId"  readonly required >
+     <label class="field" for="operator[desc]">Desc:</label><input class="textbox2" type="text" name="operator[desc]" id="desc" value="" class="text ui-widget-content ui-corner-all" required autofocus autocomplete="off" maxlength="50"></p><br><br>
+
+    <p><label class="field" for="operator[address]">Address:</label><input class="textbox2" type="text" name="operator[address]" id="address" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off" maxlength="50">
+    <label class="field" for="operator[city]">City:</label><input class="textbox2" type="text" name="operator[city]" id="city" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off" maxlength="50"></p><br><br>
+
+    <p><label class="field" for="operator[state]">State:</label><input  class="textbox2" type="text" name="operator[state]" id="state" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off" maxlength="2">
+    <label class="field" for="operator[zip]">Zip:</label><input class="textbox2" type="text" name="operator[zip]" id="zip" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off" maxlength="10"></p><br><br>
+
+
+    <p><label class="field" for="operator[phone]">Phone:</label><input class="textbox2"type="text" name="operator[phone]" id="phone" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off" maxlength="15">
+    <label class="field" for="operator[code]">Code:</label><input class="textbox2"type="text" name="operator[code]" id="code" value="" class="text ui-widget-content ui-corner-all" required readonly autocomplete="off"></p><br><br>
+
+    <p><label class="field" for="operator[active]">Active:</label><input class="checkbox1" type="checkbox" name="operator[active]" id="active" value="active">
+    <label class="field" for="operator[welch]">Welch:</label><input class="checkbox1" type="checkbox" name="operator[welch]" id="welch" value="welch"></p><br><br>
+    
+    <p><input class="subBtn" type="submit" value="Save"></p>
+
+    <input type="hidden" name="operator[operation]" id="operation" value=""></p><br><br>
+  </fieldset>
+  </form>
+</div>
+
+<% include footer.html %>

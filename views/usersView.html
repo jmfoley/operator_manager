@@ -1,0 +1,101 @@
+<% include header.html %>
+
+<h1><%= title %></h1>
+<!-- <p>Welcome to <%= title %></p> -->
+<button id="AddUser">Add User</button>
+<button  id="logout">LogOut</button>
+<div id="grid"></div>
+
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+
+  $( "#Users" ).click(function() {
+    $( "#dialog-form1" ).dialog( "open" ); 
+
+  });
+
+  $( "#AddUser" ).click(function() {
+    $( "#dialog-form1" ).dialog( "open" ); 
+    $("#operation").val('insert');
+    $("#userid").val('');
+    $("#access").val('');
+    $("#firstname").val('');
+    $("#lastname").val('');
+    $("#password").val('');
+    $('#userid').attr('readonly', false);
+    $('#userid').attr('autofocus', true);
+    $('#access').attr('autofocus', false);
+
+  });
+
+
+$( "#dialog-form1" ).dialog({
+  height: 290,
+  width: 800,
+  modal: true,
+  autoOpen: false,
+  show: {
+        effect: "fold",
+        duration: 1000
+      },
+      hide: {
+        effect: "explode",
+        duration: 1000
+      }
+  });
+});
+
+
+
+var waTable = $('#grid').WATable({
+
+	pageSize: 25, 
+  url : '/users',
+    tableCreated: function(data1) {    //Fires when the table is created / recreated. Use it if you want to manipulate the table in any way.
+        console.log('table created'); //data.table holds the html table element.
+    },
+
+    rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
+      $("#dialog-form1" ).dialog( "open" ); 
+      $("#userid").val(data.row.UserId);
+      $("#access").val(data.row.Access);
+      $("#firstname").val(data.row.FirstName);
+      $("#lastname").val(data.row.LastName);
+      $("#password").val(data.row.Password);
+      if(data.row.Active) {
+        $('#active').attr('checked', true);
+      } else {
+        $('#active').attr('checked', false);
+      }
+
+      $("#operation").val('update');
+      $('#userid').attr('readonly', true);
+      $('#userid').attr('autofocus', false);
+      $('#access').attr('autofocus', true);
+
+    }
+
+}).data('WATable');
+
+</script>
+
+<div id="dialog-form1" title="User Maintenance">
+  <form method="post" action="/user_maint">
+  <fieldset>
+     <p><label class="field" for="user[userid]">Id:</label><input class="textbox1" type="text" name="user[userid]" id="userid" required autofocus autocomplete="off" >
+     <label class="field" for="user[access]">Access:</label><input class="textbox2" type="text" name="user[access]" id="access" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off"></p><br><br>
+
+    <p><label class="field" for="user[firstname]">First Name:</label><input class="textbox2" type="text" name="user[firstname]" id="firstname" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off">
+    <label class="field" for="user[lastname]">Last Name:</label><input class="textbox2" type="text" name="user[lastname]" id="lastname" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off"></p><br><br>
+
+    <p><label class="field" for="user[password]">Password:</label><input  class="textbox2" type="text" name="user[password]" id="password" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off"> </p><br><br>
+    <p><input type="submit" value="Save"></p>
+
+    <input type="hidden" name="user[operation]" id="operation" value=""></p><br><br>
+  </fieldset>
+  </form>
+</div>
+
+<% include footer.html %>
