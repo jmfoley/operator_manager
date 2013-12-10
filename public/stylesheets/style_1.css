@@ -13,7 +13,7 @@ h1 {
 }
 
 #wrapper {
-  width: 800px;
+  width: 1000px;
   /*text-shadow: 2px 2px 2px #ccc;*/
   font-size: 15px;
   font-weight: bold;
@@ -113,7 +113,7 @@ input.checkbox1 {
   -moz-border-radius:40px;
   -webkit-border-radius:40px;
   border:1px solid #095B7E;  
-  
+
 }
 
 .version {
