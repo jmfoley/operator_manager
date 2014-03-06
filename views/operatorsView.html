@@ -7,7 +7,7 @@
   <button class="userBtns" id="Users">User Maint</button>
   <button class="userBtns" id="logout">LogOut</button><br><br>
   <div id="grid"></div><br><br>
-  <label class="version">M3 Operator Manager v0.1.2a</label>
+  <label class="version">M3 Operator Manager v0.1.3a</label>
 
 <!--   <div id="grid1"></div> -->
 </div>  
@@ -102,9 +102,11 @@ $( "#dialog-form1" ).dialog({
       hide: {
         effect: "explode",
         duration: 1000
+        
       }
   });
 });
+
 
 
 
@@ -116,27 +118,30 @@ var waTable = $('#grid').WATable({
     },
     rowClicked: function(data) {      //Fires when a row is clicked (Note. You need a column with the 'unique' property).
       //$('#dialog-form1').prop('title', 'Edit Operator');
-      $( "#dialog-form1" ).dialog( "option", "title", "Edit Operator" );
-      $("#dialog-form1" ).dialog( "open" ); 
-      $("#operatorId").val(data.row.OperatorId);
-      $("#code").val(data.row.Code);
-      $("#desc").val(data.row.Desc);
-      $("#address").val(data.row.Address);
-      $("#city").val(data.row.City);
-      $("#state").val(data.row.State);
-      $("#zip").val(data.row.Zip);
-      $("#phone").val(data.row.Phone);
-      if(data.row.Active) {
-        $('#active').attr('checked', true);
-      } else {
-        $('#active').attr('checked', false);
+      var level = "<%- access_level %>";
+      if (level !== 'READONLY') {
+        $( "#dialog-form1" ).dialog( "option", "title", "Edit Operator" );
+        $("#dialog-form1" ).dialog( "open" ); 
+        $("#operatorId").val(data.row.OperatorId);
+        $("#code").val(data.row.Code);
+        $("#desc").val(data.row.Desc);
+        $("#address").val(data.row.Address);
+        $("#city").val(data.row.City);
+        $("#state").val(data.row.State);
+        $("#zip").val(data.row.Zip);
+        $("#phone").val(data.row.Phone);
+        if(data.row.Active) {
+          $('#active').attr('checked', true);
+        } else {
+          $('#active').attr('checked', false);
+        }
+        if(data.row.Welch) {
+          $('#welch').attr('checked', true);
+        } else {
+          $('#welch').attr('checked', false);
+        }
+        $("#operation").val('update');
       }
-      if(data.row.Welch) {
-        $('#welch').attr('checked', true);
-      } else {
-        $('#welch').attr('checked', false);
-      }
-      $("#operation").val('update');
 
     }
 
