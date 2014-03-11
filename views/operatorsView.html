@@ -78,6 +78,12 @@ $(document).ready(function() {
           $('#welch').attr('checked', false);
           $( "#dialog-form1" ).dialog( "option", "title", "Add New Operator" );
           $( "#dialog-form1" ).dialog( "open" ); 
+          $("#start").hide();
+          $("#end").hide();
+          $("#datepicker").hide();
+          $("#datepicker1").hide();
+          $("#report").hide();
+
 
         },
          error: function (request,error) {
@@ -130,6 +136,11 @@ var waTable = $('#grid').WATable({
         $("#state").val(data.row.State);
         $("#zip").val(data.row.Zip);
         $("#phone").val(data.row.Phone);
+        $("#start").show();
+        $("#end").show();
+        $("#datepicker").show();
+        $("#datepicker1").show();
+        $("#report").show();
         if(data.row.Active) {
           $('#active').attr('checked', true);
         } else {
@@ -146,6 +157,13 @@ var waTable = $('#grid').WATable({
     }
 
 }).data('WATable');
+
+$(function() {
+    $( "#datepicker" ).datepicker();
+  });
+$(function() {
+    $( "#datepicker1" ).datepicker();
+  });
 
 </script>
 <div id="dialog-form1" title="Create new operator">
@@ -166,8 +184,16 @@ var waTable = $('#grid').WATable({
 
     <p><label class="field" for="operator[active]">Active:</label><input class="checkbox1" type="checkbox" name="operator[active]" id="active" value="active">
     <label class="field" for="operator[welch]">Welch:</label><input class="checkbox1" type="checkbox" name="operator[welch]" id="welch" value="welch"></p><br><br>
-    
-    <p><input class="subBtn" type="submit" value="Save"></p>
+
+    <p><label class="field" id="start">Start Date:</label><input  class="textbox2" type="text" id="datepicker" value="" class="text ui-widget-content ui-corner-all" >
+    <label class="field" id="end">End Date:</label><input class="textbox2" type="text" id="datepicker1" value="" class="text ui-widget-content ui-corner-all"  ></p><br><br>
+    <!-- <p><label class="field">Start Date:</label><input type="text" class="text ui-widget-content ui-corner-all" id="datepicker">
+    <label class="field">End Date:</label></p><br><br> -->
+
+       <!-- <label class="field">End Date:</label><input type="text"  class="text ui-widget-content ui-corner-all" id="datepicker1"></p><br><br> -->
+
+    <p><input class="subBtn" type="submit" value="Save">
+    <button class="userBtns" id="report">Report</button></p><br>
 
     <input type="hidden" name="operator[operation]" id="operation" value=""></p><br><br>
   </fieldset>
