@@ -112,6 +112,18 @@ function UpdateUser(data, cb) {
   });
 }
 
+function DeleteUser(data, cb) {
+  console.log('in deleteuser: ' + data);
+  usersDb.del(data, function (err) {
+    if (err) {
+      console.log('DeleteUser error: ' + err);
+      return cb(err,null);
+    }
+
+    return cb(null,'ok');
+
+  });  
+}
 
 
 
@@ -119,5 +131,6 @@ module.exports = {
   AuthUser   : AuthUser,
   AddUser    : AddUser,
   GetUsers   : GetUsers,
-  UpdateUser : UpdateUser
+  UpdateUser : UpdateUser,
+  DeleteUser : DeleteUser
 };

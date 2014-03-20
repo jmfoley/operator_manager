@@ -52,27 +52,27 @@ function GetDbConnection(DbConnectCallback) {
 exports.GetDbConnection = GetDbConnection;
 
  function GetFederatedDbConnection(operatorid,DbConnectCallback) {
- var sql; 
-    pool1.requestConnection(function (err, connection) {
+   var sql;
+   pool1.requestConnection(function (err, connection) {
          
         if(err) {
           DbConnectCallback(err,null);
         } else {
           //console.log('connected from pool');
             if (operatorid > 0) {
-              sql = 'use federation [OperatorFederation] ([OperatorID]=' + operatorid + ') with reset,filtering=on'
+              sql = 'use federation [OperatorFederation] ([OperatorID]=' + operatorid + ') with reset,filtering=on';
             }
             else {
-             sql = 'use federation [OperatorFederation] ([OperatorID]=' + operatorid + ') with reset,filtering=off' 
-            }              
-//            var request = new Request('use federation [OperatorFederation] ([OperatorID]=' + operatorid + ') with reset,filtering=on', function(err, rowCount) {
+             sql = 'use federation [OperatorFederation] ([OperatorID]=' + operatorid + ') with reset,filtering=off';
+           }
+           //            var request = new Request('use federation [OperatorFederation] ([OperatorID]=' + operatorid + ') with reset,filtering=on', function(err, rowCount) {
             var request = new Request(sql, function(err, rowCount) {
             if(err) {
                console.log('Federation error: ' + err);
                DbConnectCallback(err,null);
             } else {
            //      console.log('changed fed');
-                 delete request;
+                 //delete request;
                  DbConnectCallback(null,connection);
 
 

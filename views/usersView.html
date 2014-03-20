@@ -11,7 +11,7 @@
 
 <script type="text/javascript">
 
-$(document).ready(function() {
+$(document).ready(function() { 
 
   $( "#Users" ).click(function() {
     $( "#dialog-form1" ).dialog( "open" ); 
@@ -61,7 +61,7 @@ $(document).ready(function() {
 
 
 $( "#dialog-form1" ).dialog({
-  height: 290,
+  height: 320,
   width: 800,
   modal: true,
   autoOpen: false,
@@ -120,7 +120,8 @@ var waTable = $('#grid').WATable({
     <label class="field" for="user[lastname]">Last Name:</label><input class="textbox2" type="text" name="user[lastname]" id="lastname" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off"></p><br><br>
 
     <p><label class="field" for="user[password]">Password:</label><input  class="textbox2" type="text" name="user[password]" id="password" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off"> </p><br><br>
-    <p><input type="submit" value="Save"></p>
+    <input class="subBtn" type="submit" value="Save">
+    <!-- <button class="userBtns" id="delete">Delete User</button> -->
 
     <input type="hidden" name="user[operation]" id="operation" value=""></p><br><br>
   </fieldset>

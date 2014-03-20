@@ -7,7 +7,7 @@
   <button class="userBtns" id="Users">User Maint</button>
   <button class="userBtns" id="logout">LogOut</button><br><br>
   <div id="grid"></div><br><br>
-  <label class="version">M3 Operator Manager v0.1.3a</label>
+  <label class="version">M3 Operator Manager v0.1.4</label>
 
 <!--   <div id="grid1"></div> -->
 </div>  
@@ -46,6 +46,62 @@ $(document).ready(function() {
     $('#Users').hide();
   }
 
+  // $( "#datepicker" ).datepicker( "option", "dateFormat", "yyyy-mm-dd" );
+  // $( "#datepicker1" ).datepicker( "option", "dateFormat", "yyyy-mm-dd" );
+
+   $("#report").click(function(event) {
+     //alert('ok');
+   // $.getJSON('/operatorreport/9', function (data) {
+   //   alert(data);
+   // });
+   
+    event.preventDefault();
+
+    var start = $("#datepicker").val();
+    var end = $("#datepicker1").val();
+    
+   if (start === "") {
+     alert('Both dates required');
+     return;
+   }
+
+   if (end === "") {
+     alert('Both dates required');
+     return;
+   }
+   
+   var operatorid = $("#operatorId").val();
+    var params = {
+      operator: operatorid,
+      startDate: start,
+      endDate: end
+    };
+    $.ajax({
+      type: "GET",
+      url:  '/operatorreport/' + operatorid + '/' + start + '/' + end,
+     // url:  '/operatorreport1' ,
+      timeout: 10000,
+      //data: params,
+      //url:  '/operatorreport/9',
+
+        success: function (result) {
+          //window.location = "/";
+          //alert(result.path);
+          //console.log(result.path);
+          window.open(result, "Operator Report"); 
+          $( "#dialog-form1" ).hide();
+          window.location = "/operatorsView";
+        },
+        error: function (request, err){
+          //console.log(err);
+          //console.log(request);
+          alert(request.responseText);
+        }
+    });  
+
+
+   });
+
   $( "#logout" ).click(function() {
     $.ajax({
       type: "GET",
@@ -57,6 +113,9 @@ $(document).ready(function() {
           alert(err);
         }
     });  
+
+    //window.open("http://www.google.com", "google"); 
+
   });
 
   $( "#AddOper" ).click(function() {
@@ -83,6 +142,8 @@ $(document).ready(function() {
           $("#datepicker").hide();
           $("#datepicker1").hide();
           $("#report").hide();
+          $("#rtcost").val('0');
+          $("#vgtcost").val('0');
 
 
         },
@@ -97,8 +158,8 @@ $(document).ready(function() {
   });
 
 $( "#dialog-form1" ).dialog({
-  height: 410,
-  width: 800,
+  height: 430,
+  width: 850,
   modal: true,
   autoOpen: false,
   show: {
@@ -140,6 +201,10 @@ var waTable = $('#grid').WATable({
         $("#end").show();
         $("#datepicker").show();
         $("#datepicker1").show();
+        $("#datepicker").val('');
+        $("#datepicker1").val('');
+        $("#rtcost").val(data.row.Rt_Cost);
+        $("#vgtcost").val(data.row.Vgt_Cost);
         $("#report").show();
         if(data.row.Active) {
           $('#active').attr('checked', true);
@@ -159,14 +224,16 @@ var waTable = $('#grid').WATable({
 }).data('WATable');
 
 $(function() {
-    $( "#datepicker" ).datepicker();
+  var startDate = new Date();
+    $( "#datepicker" ).datepicker({ dateFormat: "yy-mm-dd"});
   });
 $(function() {
-    $( "#datepicker1" ).datepicker();
+    $( "#datepicker1" ).datepicker({ dateFormat: "yy-mm-dd"});
   });
 
 </script>
 <div id="dialog-form1" title="Create new operator">
+<!-- <button class="userBtns" id="report">Report</button></p><br> -->
   <form method="post" action="/operator_maint">
   <fieldset>
      <p><label class="field" for="operator[operatorId]">Id:</label><input class="textbox1" type="text" name="operator[operatorId]" id="operatorId"  readonly required >
@@ -184,6 +251,9 @@ $(function() {
 
     <p><label class="field" for="operator[active]">Active:</label><input class="checkbox1" type="checkbox" name="operator[active]" id="active" value="active">
     <label class="field" for="operator[welch]">Welch:</label><input class="checkbox1" type="checkbox" name="operator[welch]" id="welch" value="welch"></p><br><br>
+
+    <p><label class="field1" for="operator[rtcost]">Rt Cost Per Day:</label><input class="textbox3"type="text" name="operator[rtcost]" id="rtcost" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off" maxlength="3" title="RT Cost Per Day (Pennies)">
+    <label class="field1" for="operator[vgtcost]">Vgt Cost Per Day:</label><input class="textbox3"type="text" name="operator[vgtcost]" id="vgtcost" value="" class="text ui-widget-content ui-corner-all" required  autocomplete="off" maxlength="3" title="VGT Cost Per Day (Pennies)"></p><br><br>  
 
     <p><label class="field" id="start">Start Date:</label><input  class="textbox2" type="text" id="datepicker" value="" class="text ui-widget-content ui-corner-all" >
     <label class="field" id="end">End Date:</label><input class="textbox2" type="text" id="datepicker1" value="" class="text ui-widget-content ui-corner-all"  ></p><br><br>

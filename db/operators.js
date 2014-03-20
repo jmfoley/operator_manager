@@ -5,6 +5,73 @@ var dbConnect = require('./DbConnection');
 var util = require('util');
 var uuid = require('uuid-lib');
 var async = require('async');
+var opReport  = require('../reports/OpReport');
+
+
+function FormatDate( data ) {
+  var d = new Date(data);
+  var curr_date = d.getDate();
+  var curr_month = d.getMonth();
+  curr_month++;
+  var curr_year = d.getFullYear();
+
+  return curr_month + "/" + curr_date + "/" + curr_year;
+}
+
+function GetOperatorReportData(operator, startDate, endDate, cb) {
+  console.log('in operator report');
+  dbConnect.GetDbConnection(function (err, connection) {
+    if (err) {
+      return cb(null,err);
+    }
+    var sql = 'select SiteId, RT, VGT, GameDate, Operator_Desc, Site_Desc, Rt_Daily_Cost, Vgt_Daily_Cost from db_Operator_Stats where OperatorId = @oper ' +
+              'and GameDate >= @start and GameDate <= @end';
+     var data = []; 
+     var start = new Date(startDate);
+     var end = new Date(endDate);        
+    var request = new Request(sql, function (err, results) {
+      if (err) {
+        console.log(err);
+        return cb('Database Error', null);
+      }
+
+      if (data.length < 1) {
+        return cb('No Data Returned For Date Range', null);
+      }
+      
+      opReport.PrintReport(data, startDate, endDate, function (err, path) {
+        if (err) {
+          return cb(err, null);
+        }
+        console.log('path1 = ' + path);
+        return cb(null, path);
+      });
+
+      //return cb(null, data);
+
+    }); 
+    request.on('row', function (columns) {
+      data.push({operator: columns[4].value,
+                      operatorid: operator,
+                      site: columns[5].value,
+                      siteid: columns[0].value,
+                      date: FormatDate(columns[3].value),
+                      rtcount: columns[1].value,
+                      vgtcount: columns[2].value,
+                      rtcost: columns[6].value,
+                      vgtcost: columns[7].value,
+                      rttotal: (columns[1].value * columns[6].value),
+                      vgttotal: (columns[2].value * columns[7].value) });
+                      
+
+    });  
+    request.addParameter('oper', TYPES.Int, operator);
+    request.addParameter('start', TYPES.DateTime, start);
+    request.addParameter('end', TYPES.DateTime, end); 
+    connection.execSql(request);        
+  });    
+}
+
 
 
 function AddSlType(connection, operatorId, cb) {
@@ -29,7 +96,18 @@ function AddSlType(connection, operatorId, cb) {
 
 function AddSlStyle(connection, operatorId, cb) {
   var sql = 'insert into sl_style( operatorId, style_id, style_desc, cabinet, width, depth, height, readitonly, defaultrec,' +
-            'status, updated) values(@oper, \'1\', \'UNDEFINED\', \'UNDEFINED\', 1,1,1,1,1,\'A\',getdate())';
+            'status, updated) values(@oper, \'1\', \'UNDEFINED\', \'UNDEFINED\', 1,1,1,1,1,\'A\',getdate()) ' +
+
+            'insert into sl_style( operatorId, style_id, style_desc, cabinet, width, depth, height, readitonly, defaultrec,' +
+            'status, updated) values(@oper, \'Sitdown\', \'Sitdown\', \'Sitdown\', 0,0,0,0,0,\'A\',getdate()) ' +
+
+            'insert into sl_style( operatorId, style_id, style_desc, cabinet, width, depth, height, readitonly, defaultrec,' +
+            'status, updated) values(@oper, \'Slanttop\', \'Slanttop\', \'Slanttop\', 0,0,0,0,0,\'A\',getdate()) ' +
+
+            'insert into sl_style( operatorId, style_id, style_desc, cabinet, width, depth, height, readitonly, defaultrec,' +
+            'status, updated) values(@oper, \'Upright\', \'Upright\', \'upright\', 1,1,1,1,1,\'A\',getdate())';
+
+
   var request = new Request(sql, function (err, sqlResults) {
     if (err) {
       request = null;
@@ -123,6 +201,7 @@ function AddScAssignedMenus(connection, operatorId, cb) {
     if (err) {
       request = null;
       sql = null;
+      console.log(err);
       return cb(err, null);
     }
     request = null;
@@ -281,6 +360,67 @@ function AddCfTransTypes(connection, operatorId, cb) {
   connection.execSql(request);
 }
 
+function AddScCustomFields(connection, operatorId, cb) {
+  var sql = 'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Machine\', \'CustomField01\', \'Custom Field 1\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values' +
+            '( @operatorID, \'Machine\', \'CustomField02\', \'Custom Field 2\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Machine\', \'CustomField03\', \'Custom Field 3\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Machine\', \'CustomField04\', \'Custom Field 4\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Machine\', \'CustomField05\', \'Custom Field 5\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Machine\', \'CustomField06\', \'Custom Field 6\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Machine\', \'CustomField07\', \'Custom Field 7\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Machine\', \'CustomField08\', \'Custom Field 8\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Machine\', \'CustomField09\', \'Custom Field 9\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Machine\', \'CustomField10\', \'Custom Field 10\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+ 
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Theme\', \'CustomField01\', \'Custom Field 1\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Theme\', \'CustomField02\', \'Custom Field 2\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Theme\', \'CustomField03\', \'Custom Field 3\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Theme\', \'CustomField04\', \'Custom Field 4\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Theme\', \'CustomField05\', \'Custom Field 5\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Theme\', \'CustomField06\', \'Custom Field 6\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Theme\', \'CustomField07\', \'Custom Field 7\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Theme\', \'CustomField08\', \'Custom Field 8\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Theme\', \'CustomField09\', \'Custom Field 9\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0) ' +
+            'insert into sc_customFields( operatorID, tableName, fieldName, fieldDescription, required, masked, updated, updatedBy, updatedFrom, id, status) values ' +
+            '( @operatorID, \'Theme\', \'CustomField10\', \'Custom Field 10\', 1, 0, getdate(), \'Admin\', \'Admin01\', newid(), 0)';
+
+  var request = new Request(sql, function (err, result) {
+    if (err) {
+      sql = null;
+      request = null;
+      return cb(err, null);
+    }
+
+    sql = null;
+    request = null;
+    return cb(null, result);
+  });
+  request.addParameter('operatorID', TYPES.Int, operatorId);
+  connection.execSql(request);          
+}
+
+
+
+
 function AddCfOperators(data, cb) {
   var active = null;
   var welch = null;
@@ -298,13 +438,20 @@ function AddCfOperators(data, cb) {
     welch = data.operator.welch;
   }
 
+ if (isNaN(data.operator.rtcost) ) {
+        data.operator.rtcost = '0';
+      }
+    
+      if (isNaN(data.operator.vgtcost) ) {
+        data.operator.vgtcost = '0';
+      }
 
   dbConnect.GetDbConnection(function (err, connection) {
     if (err) {
       return cb(err, null);
     }
-    var sql = 'insert into cf_Operators(ID,Description,Address,City,State,Zip,Phone,Active,WelchAccessable,SecurityCode) ' +
-               'values(@id,@desc,@addr,@city,@state,@zip,@phone,@active,@welch,@code)';
+    var sql = 'insert into cf_Operators(ID,Description,Address,City,State,Zip,Phone,Active,WelchAccessable,SecurityCode, ' +
+               'Rt_Daily_Cost,Vgt_Daily_Cost)values(@id,@desc,@addr,@city,@state,@zip,@phone,@active,@welch,@code,@rtcost,@vgtcost)';
     var request = new Request(sql, function (err, sqlResults) {
       if (err) {
         connection.close();
@@ -317,7 +464,7 @@ function AddCfOperators(data, cb) {
       sql = null;
       return cb(null, 'ok');
     });
-    request.addParameter('id', TYPES.Int, data.operator.operatorId);    
+    request.addParameter('id', TYPES.Int, data.operator.operatorId);
     request.addParameter('desc', TYPES.VarChar, data.operator.desc);
     request.addParameter('addr', TYPES.VarChar, data.operator.address);
     request.addParameter('city', TYPES.VarChar, data.operator.city);
@@ -327,6 +474,8 @@ function AddCfOperators(data, cb) {
     request.addParameter('active', TYPES.Bit, active);
     request.addParameter('welch', TYPES.Bit, welch);
     request.addParameter('code', TYPES.VarChar, data.operator.code);
+    request.addParameter('rtcost', TYPES.Int, data.operator.rtcost);
+    request.addParameter('vgtcost', TYPES.Int, data.operator.vgtcost);
     connection.execSql(request);
 
   });
@@ -335,11 +484,11 @@ function AddCfOperators(data, cb) {
 //Just used from the test code to test each function
 function OperatorFuncTest(cb) {
 
-    dbConnect.GetFederatedDbConnection(14, function (err, connection) {
+    dbConnect.GetFederatedDbConnection(15, function (err, connection) {
       if (err){
         return cb(err, null);
       }
-      AddScAssignedMenus(connection, 14, function (err, result) {
+      AddScAssignedMenus(connection, 15, function (err, result) {
         if (err) {
           console.log(err);
           connection.close();
@@ -372,7 +521,7 @@ function AddOperator(data, cb) {
               return callback(err);
             }
             callback();
-          });          
+          });
         },
         function(callback) {
           AddSlType(connection, data.operator.operatorId, function (err, result) {
@@ -389,7 +538,7 @@ function AddOperator(data, cb) {
             }
             callback();
 
-          });          
+          });
         },
         function(callback) {
           AddSlManuf(connection, data.operator.operatorId, function (err, result) {
@@ -397,7 +546,7 @@ function AddOperator(data, cb) {
               return callback(err);
             }
             callback();
-          });          
+          });
         },
         function(callback) {
           AddSlLease(connection, data.operator.operatorId, function (err, result) {
@@ -421,7 +570,7 @@ function AddOperator(data, cb) {
               return callback(err);
             }
             callback();
-          });          
+          });
         },
         function(callback) {
           AddScAssignedMenus(connection, data.operator.operatorId, function (err, result) {
@@ -477,12 +626,23 @@ function AddOperator(data, cb) {
               return callback(err);
             }
             callback();
-          });  
+          });
+        },
+        function(callback) {
+             AddScCustomFields(connection, data.operator.operatorId, function (err, result) {
+            if (err) {
+              return callback(err);
+            }
+            callback();
+          });       
         }
         ], function(err) {
           if (err) {
             connection.close();
             console.log(err);
+            LogError(data.operator.operatorId,err,function(err, result) {
+
+            });
             return cb(err, null);
           }
           console.log('async done');
@@ -524,7 +684,7 @@ function GetOperatorSeeds(cb) {
     });
 
     request.on('row', function (columns) {
-      var id = parseInt(columns[0].value);
+      var id = parseInt(columns[0].value,10);
       id++;
 
       var opCode = uuid.create().toString();
@@ -583,6 +743,14 @@ function GetOperatorTableLayout() {
         Code: {
           index: 10,
           type: "string"
+        },
+        Rt_Cost: {
+          index: 11,
+          type: "string"
+        },
+        Vgt_Cost: {
+          index: 12,
+          type: "string"
         }
       },
       rows : [
@@ -602,7 +770,7 @@ function GetOperators(cb) {
     }
     var connection = result;
     var data = new GetOperatorTableLayout();
-    var sql = 'select ID,Description,Address,City,State,Zip,Phone,Active,WelchAccessable,SecurityCode from cf_Operators';
+    var sql = 'select ID,Description,Address,City,State,Zip,Phone,Active,WelchAccessable,SecurityCode,Rt_Daily_Cost,Vgt_Daily_Cost from cf_Operators';
     var request =  new Request(sql, function (err, results) {
       if (err) {
         return cb(err, null);
@@ -623,7 +791,9 @@ function GetOperators(cb) {
                       Phone: columns[6].value,
                       Active: columns[7].value,
                       Welch: columns[8].value,
-                      Code: columns[9].value  });
+                      Code: columns[9].value,
+                      Rt_Cost: columns[10].value,
+                      Vgt_Cost: columns[11].value  });
 
     });
     connection.execSql(request);
@@ -655,8 +825,8 @@ function UpdateOperator(data, cb) {
       return cb(err, null);
     } else {
       var connection = results;
-      var sql = 'update cf_Operators set Description = @desc, Address = @addr, City = @city, State = @state, Phone = @phone, ' +
-                'Active = @active, WelchAccessable = @welch where ID = @id and SecurityCode = @code';
+      var sql = 'update cf_Operators set Description = @desc, Address = @addr, City = @city, State = @state, zip = @zip, Phone = @phone, ' +
+                'Active = @active, WelchAccessable = @welch, Rt_Daily_Cost = @rt, Vgt_Daily_Cost = @vgt where ID = @id and SecurityCode = @code';
       var request = new Request(sql, function (err, rowCount) {
         if (err) {
           connection.close();
@@ -673,6 +843,15 @@ function UpdateOperator(data, cb) {
           return cb(null, 'ok');
         }
       });
+
+      if (isNaN(data.operator.rtcost) ) {
+        data.operator.rtcost = '0';
+      }
+    
+      if (isNaN(data.operator.vgtcost) ) {
+        data.operator.vgtcost = '0';
+      }
+
       request.addParameter('desc', TYPES.VarChar, data.operator.desc);
       request.addParameter('addr', TYPES.VarChar, data.operator.address);
       request.addParameter('city', TYPES.VarChar, data.operator.city);
@@ -683,10 +862,59 @@ function UpdateOperator(data, cb) {
       request.addParameter('welch', TYPES.Bit, welch);
       request.addParameter('id', TYPES.Int, data.operator.operatorId);
       request.addParameter('code', TYPES.VarChar, data.operator.code);
+      request.addParameter('rt', TYPES.Int, data.operator.rtcost);
+      request.addParameter('vgt', TYPES.Int, data.operator.vgtcost);
       connection.execSql(request);
     }
   });
 }
+
+
+function LogError(operatorId,errorText,callback) {
+    
+    var sql = '';
+    var connection;
+
+    dbConnect.GetDbConnection(operatorId,function(err,results) {
+
+    if ( err ) {
+
+      return callback(err,null);
+
+    } else {
+
+           connection =  results;
+           sql = 'insert into db_route_errorlog (operatorID,location,data,updated)values(@oper,@loc,@errText,@date)';
+           var request = new Request(sql,function(err,rowCount) {
+        
+        
+            if (err) {
+                connection.close();
+                sql = null;
+                console.log(errorText);
+                return callback(err,null);
+            } else {
+                connection.close();
+                sql = null;
+                request = null;
+                rowCount = null;
+                return callback(null,'ok');
+            }
+        });
+
+        request.addParameter('oper', TYPES.Int,operatorId);
+        request.addParameter('loc', TYPES.VarChar,'OperAdd');
+        request.addParameter('errText', TYPES.VarChar,errorText);
+        request.addParameter('date', TYPES.DateTime,new Date());
+
+        connection.execSql(request);
+
+    }
+
+    });
+
+}
+
 
 
 
@@ -744,5 +972,6 @@ module.exports = {
   UpdateOperator   : UpdateOperator,
   GetOperatorSeeds : GetOperatorSeeds,
   AddOperator      : AddOperator,
-  OperatorFuncTest : OperatorFuncTest
+  OperatorFuncTest : OperatorFuncTest,
+  GetOperatorReportData : GetOperatorReportData
 };

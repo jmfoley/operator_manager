@@ -30,6 +30,7 @@ app.use(express.cookieParser('iclient'));
 app.use(express.session());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(__dirname + '/public', { maxAge: 1 }));
 
 // development only
 if ('development' === app.get('env')) {
@@ -71,7 +72,38 @@ app.post('/checklogin', function (req, res) {
 
 });
 
+app.post('/operatorreport1', function (req, res ){
+  //app.get('/operatorreport/:oper', function (req, res ){
+  console.log('OPERATOR = '+ req.body.operator);
+  operators.GetOperatorReportData(req.body.operator, req.body.startDate, req.body.endDate, function (err, result) {
+    if (err) {
+      console.log('error: ' + err);
 
+      return res.send(err);
+    }
+    console.log(result);
+    //res.status(200);
+    return res.send('ok');
+  });
+
+});
+
+
+app.get('/operatorreport/:oper/:startDate/:endDate', function (req, res ){
+  //app.get('/operatorreport/:oper', function (req, res ){
+  console.log('OPERATOR = '+ req.params.oper);
+  operators.GetOperatorReportData(req.params.oper, req.params.startDate, req.params.endDate, function (err, result) {
+    if (err) {
+      console.log('error: ' + err);
+      res.status(404);
+      return res.send(err.toString());
+    }
+    console.log(result);
+    res.status(200);
+    return res.send(result);
+  });
+
+});
 
 app.get('/operator_seeds', function (req, res) {
   operators.GetOperatorSeeds(function (err, result) {
@@ -116,6 +148,22 @@ app.get('/users', function (req, res) {
 });
 
 
+// app.post('/delete_user/:userid', function (req, res) {
+//   console.log('userid = :' + req.params.userid);
+//   userMod.DeleteUser( req.params.userid, function (err, result) {
+//     if( !err) {
+//       //return res.send(result);
+//       return res.render('usersView', {title: 'Users', access_level: req.cookies.level});
+//     }
+//     console.log('delete_user error: ' + err);
+//     return res.render('usersView', {title: 'Users', access_level: req.cookies.level});
+//     //return res.send(401);
+    
+//   });
+//   //console.log('userid = :' + req.body.userid);
+// });
+
+
 app.post('/user_maint', function (req, res) {
   if (req.body.user.operation === 'update') {
     userMod.UpdateUser(req.body, function (err, result) {
@@ -141,7 +189,7 @@ app.post('/operator_maint', function (req, res) {
       if (err) {
         return res.render('operatorsView', {title: 'Operators', access_level: result.access_level});
       }
-      return res.render('operatorsView', {title: 'Operators', access_level: req.cookies.level});
+      res.render('operatorsView', {title: 'Operators', access_level: req.cookies.level});
     });
   }
 
