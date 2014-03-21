@@ -45,17 +45,21 @@ function GetOperatorReportData(operator, startDate, endDate, cb) {
     var request = new Request(sql, function (err, results) {
       if (err) {
         console.log(err);
+        connection.close();
         return cb('Database Error', null);
       }
 
       if (data.length < 1) {
+        connection.close();
         return cb('No Data Returned For Date Range', null);
       }
       
       opReport.PrintReport(data, startDate, endDate, function (err, path) {
         if (err) {
+          connection.close();
           return cb(err, null);
         }
+        connection.close();
         console.log('path1 = ' + path);
         return cb(null, path);
       });
