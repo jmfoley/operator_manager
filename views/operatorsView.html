@@ -70,6 +70,9 @@ $(document).ready(function() {
      return;
    }
    
+
+
+
    var operatorid = $("#operatorId").val();
     var params = {
       operator: operatorid,
@@ -255,8 +258,8 @@ $(function() {
     <p><label class="field1" for="operator[rtcost]">Rt Cost Per Day:</label><input class="textbox3"type="text" name="operator[rtcost]" id="rtcost" value="" class="text ui-widget-content ui-corner-all" required autocomplete="off" maxlength="3" title="RT Cost Per Day (Pennies)">
     <label class="field1" for="operator[vgtcost]">Vgt Cost Per Day:</label><input class="textbox3"type="text" name="operator[vgtcost]" id="vgtcost" value="" class="text ui-widget-content ui-corner-all" required  autocomplete="off" maxlength="3" title="VGT Cost Per Day (Pennies)"></p><br><br>  
 
-    <p><label class="field" id="start">Start Date:</label><input  class="textbox2" type="text" id="datepicker" value="" class="text ui-widget-content ui-corner-all" >
-    <label class="field" id="end">End Date:</label><input class="textbox2" type="text" id="datepicker1" value="" class="text ui-widget-content ui-corner-all"  ></p><br><br>
+    <p><label class="field" id="start">Start Date:</label><input  class="textbox2" type="text" id="datepicker" value="" class="text ui-widget-content ui-corner-all" readonly >
+    <label class="field" id="end">End Date:</label><input class="textbox2" type="text" id="datepicker1" value="" class="text ui-widget-content ui-corner-all" readonly ></p><br><br>
     <!-- <p><label class="field">Start Date:</label><input type="text" class="text ui-widget-content ui-corner-all" id="datepicker">
     <label class="field">End Date:</label></p><br><br> -->
 

@@ -19,7 +19,9 @@ function FormatDate( data ) {
 }
 
 function GetOperatorReportData(operator, startDate, endDate, cb) {
-  console.log('in operator report');
+  //console.log('in operator report');
+  //console.log('start = ' + startDate);
+  //console.log('end = ' + endDate);
   dbConnect.GetDbConnection(function (err, connection) {
     if (err) {
       return cb(null,err);
@@ -28,7 +30,18 @@ function GetOperatorReportData(operator, startDate, endDate, cb) {
               'and GameDate >= @start and GameDate <= @end';
      var data = []; 
      var start = new Date(startDate);
-     var end = new Date(endDate);        
+     var end = new Date(endDate);   
+
+     start.setDate(start.getDate() + 1);
+     end.setDate(end.getDate() + 1);
+     start.setHours(0);
+     end.setHours(5);
+     
+     
+     //console.log('start = ' + start);
+     //console.log('end = ' + end);
+
+     
     var request = new Request(sql, function (err, results) {
       if (err) {
         console.log(err);
@@ -65,6 +78,9 @@ function GetOperatorReportData(operator, startDate, endDate, cb) {
                       
 
     });  
+
+    console.log('***Start = ' + start);
+    console.log('***End = ' + end);
     request.addParameter('oper', TYPES.Int, operator);
     request.addParameter('start', TYPES.DateTime, start);
     request.addParameter('end', TYPES.DateTime, end); 
