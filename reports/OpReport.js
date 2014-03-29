@@ -205,7 +205,7 @@ var finalSummary = function(rpt, data) {
 
     rpt.band( [
        {data: "Invoice Total ",width:105, fontBold:true,fontSize:14},
-       {data:'$ ' + (invoiceTotal / 100.0).toFixed(2), width:50,fontBold:true,fontSize:14}
+       {data:'$ ' + (invoiceTotal / 100.0).toFixed(2), width:90,fontBold:true,fontSize:14}
     ]);   
     
 };
