@@ -93,7 +93,7 @@ var Title = function(report, data) {
     report.print('Operator Billing Summary -- ' + mydata1[0].operator,{fontBold: true, fontSize: 14, align:'center'});
     report.newline();
     report.newline();
-    report.print('Date Printed: ' + new Date().toString('mm/dd/yyyy') + '                                                              Page: ' + page++, {align:'left'});
+    report.print('Date Printed: ' + new Date().toString('mm/dd/yyyy') + '                                                         Page: ' + page++, {align:'left'});
     //report.print('Page: ' + page++, {align:'right'});
     //report.newline();
     report.print("Billing Period: " + startDate + ' - ' + endDate);
@@ -108,8 +108,8 @@ var Title = function(report, data) {
       //[data.operator, 80],
       [data.site, 100],
       [data.date, 70],
-      [data.rtcount, 30, 3],
-      [data.vgtcount, 30, 3],
+      [data.rtcount, 30, 2],
+      [data.vgtcount, 30, 2],
       ['$ ' + (data.rtcost / 100.0).toFixed(2), 70, 3],
       ['$ ' + (data.vgtcost / 100.0).toFixed(2), 70, 3],
       ['$ ' + (data.rttotal / 100.0).toFixed(2), 70, 3],
@@ -121,9 +121,9 @@ var Title = function(report, data) {
   var namefooter = function ( report, data, state ) {
     report.newLine();
     report.band( [
-      ["Totals for " + data.site, 192],
-      [report.totals.rtcount, 30],
-      [report.totals.vgtcount, 188],
+      ["Totals for " + data.site, 183],
+      [report.totals.rtcount, 29],
+      [report.totals.vgtcount, 198],
       //[report.totals.rtcost, 70],
       //[report.totals.vgtcost, 50],
       [report.totals.rttotal, 70],
@@ -162,7 +162,7 @@ var Title = function(report, data) {
     // We could do this -->  report.setCurrentY(report.getCurrentY()+2);   Or use the shortcut below of addY: 2
     //report.print( ["Week Number: " + data.week], {x: 100, addY: 2} );
     report.print( "Site: " + data.site + ' - Site Id: ' + data.siteid, {x: 100, addY: 2, fontBold:true} );
-     report.newline();
+    report.newline();
     report.band([
     //{data: 'Operator', width: 80, fontBold:true},
     {data: 'Site', width: 100, fontBold:true},
